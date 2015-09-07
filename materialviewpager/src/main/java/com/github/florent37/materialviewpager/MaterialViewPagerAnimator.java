@@ -2,6 +2,8 @@ package com.github.florent37.materialviewpager;
 
 import android.content.Context;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
@@ -34,13 +36,13 @@ import static com.github.florent37.materialviewpager.Utils.setScale;
 
 /**
  * Created by florentchampigny on 24/04/15.
- * <p/>
+ *
  * Listen to Scrollable inside MaterialViewPager
  * When notified scroll, dispatch the current scroll to other scrollable
- * <p/>
+ *
  * Note : didn't want to translate the MaterialViewPager or intercept Scroll,
  * so added a ViewPager with scrollables containing a transparent placeholder on top
- * <p/>
+ *
  * When scroll, animate the MaterialViewPager Header (toolbar, logo, color ...)
  */
 public class MaterialViewPagerAnimator {
@@ -117,7 +119,7 @@ public class MaterialViewPagerAnimator {
      * @param source
      * @param yOffset
      */
-    private void dispatchScrollOffset(Object source, float yOffset) {
+    protected void dispatchScrollOffset(Object source, float yOffset) {
         if (scrollViewList != null) {
             for (Object scroll : scrollViewList) {
 
@@ -152,11 +154,15 @@ public class MaterialViewPagerAnimator {
      * @param source  the scroller
      * @param yOffset the scroller current yOffset
      */
-    public void onMaterialScrolled(Object source, float yOffset) {
+    public boolean onMaterialScrolled(Object source, float yOffset) {
+
+        if(initialDistance == -1 || initialDistance == 0) {
+            initialDistance = mHeader.mPagerSlidingTabStrip.getTop() - mHeader.toolbar.getBottom();
+        }
 
         //only if yOffset changed
         if (yOffset == lastYOffset)
-            return;
+            return false;
 
         float scrollTop = -yOffset;
 
@@ -182,13 +188,13 @@ public class MaterialViewPagerAnimator {
 
         float percent = yOffset / scrollMax;
 
-        if(initialDistance == -1)
-            initialDistance = mHeader.mPagerSlidingTabStrip.getTop() - mHeader.toolbar.getBottom();
-
         //distance between pager & toolbar
         float newDistance = ViewHelper.getY(mHeader.mPagerSlidingTabStrip) - mHeader.toolbar.getBottom();
 
         percent = 1 - newDistance/initialDistance;
+
+        if(Float.isNaN(percent)) //fix for orientation change
+            return false;
 
         percent = minMax(0, percent, 1);
         {
@@ -265,6 +271,8 @@ public class MaterialViewPagerAnimator {
         }
 
         lastYOffset = yOffset;
+
+        return true;
     }
 
     private void scrollUp(float yOffset) {
@@ -303,19 +311,19 @@ public class MaterialViewPagerAnimator {
         colorAnim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
-                int colorAlpha = colorWithAlpha((Integer) animation.getAnimatedValue(), lastPercent);
+                final int animatedValue = (Integer) animation.getAnimatedValue();
+                int colorAlpha = colorWithAlpha(animatedValue, lastPercent);
                 mHeader.headerBackground.setBackgroundColor(colorAlpha);
                 mHeader.statusBackground.setBackgroundColor(colorAlpha);
                 mHeader.toolbar.setBackgroundColor(colorAlpha);
                 mHeader.toolbarLayoutBackground.setBackgroundColor(colorAlpha);
                 mHeader.mPagerSlidingTabStrip.setBackgroundColor(colorAlpha);
+
+                //set the new color as MaterialViewPager's color
+                settings.color = animatedValue;
             }
         });
         colorAnim.start();
-
-        //set the new color as MaterialViewPager's color
-        this.settings.color = color;
-
     }
 
     public void animateColorPercent(float percent, int duration) {
@@ -608,9 +616,17 @@ public class MaterialViewPagerAnimator {
 
     //endregion
 
-    public void restoreScroll(float scroll, MaterialViewPagerSettings settings) {
-        this.settings = settings;
-        onMaterialScrolled(null, scroll);
+    public void restoreScroll(final float scroll, final MaterialViewPagerSettings settings) {
+        //try to scroll up, on a looper to wait until restored
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if(!onMaterialScrolled(null, scroll)){
+                    restoreScroll(scroll,settings);
+                }
+            }
+        },100);
+
     }
 
     public void onViewPagerPageChanged() {

@@ -15,7 +15,7 @@ Material Design ViewPager easy to use library
   <img alt="Android app on Google Play" src="https://developer.android.com/images/brand/en_app_rgb_wo_45.png" />
 </a>
 
-You can find a sample APK : [Link](https://github.com/florent37/MaterialViewPager/releases/download/1.0.3/sample-debug.apk)
+You can find a sample APK : [Link](https://github.com/florent37/MaterialViewPager/releases/download/1.1.0/sample-release.apk)
 
 And have a look on a sample Youtube Video : [Youtube Link](http://www.youtube.com/watch?v=r95Tt6AS18c)
 
@@ -25,7 +25,7 @@ And have a look on a sample Youtube Video : [Youtube Link](http://www.youtube.co
 
 In your module [![Download](https://api.bintray.com/packages/florent37/maven/MaterialViewPager/images/download.svg)](https://bintray.com/florent37/maven/MaterialViewPager/_latestVersion)
 ```groovy
-compile ('com.github.florent37:materialviewpager:1.0.8@aar'){
+compile ('com.github.florent37:materialviewpager:1.1.0@aar'){
     transitive = true
 }
 ```
@@ -51,6 +51,8 @@ Add MaterialViewPager to your activity's layout
     app:viewpager_displayToolbarWhenSwipe="true"
     app:viewpager_transparentToolbar="true"
     app:viewpager_animatedHeaderImage="true"
+    app:viewpager_disableToolbar="false"
+
     />
 ```
 
@@ -499,6 +501,15 @@ And must include @layout/material_view_pager_placeholder as first child
 
 #CHANGELOG
 
+##1.1.0
+- orientation change fix
+- header image display fix
+- elements on header are now clickable
+- notifyHeaderChanged
+
+##1.0.8
+- added attribute viewpager_disableToolbar
+
 ##1.0.7
 - fix bug on low resolutions
 
@@ -572,7 +583,7 @@ Tell me if you're using my library in your application, I'll share it in this RE
 
 #Credits
 
-Author: Florent Champigny
+Author: Florent Champigny [http://www.florentchampigny.com/](http://www.florentchampigny.com/)
 
 <a href="https://plus.google.com/+florentchampigny">
   <img alt="Follow me on Google+"

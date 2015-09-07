@@ -2,6 +2,7 @@ package com.github.florent37.materialviewpager;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Parcel;
@@ -118,6 +119,8 @@ public class MaterialViewPager extends FrameLayout implements ViewPager.OnPageCh
         logoContainer = (ViewGroup) findViewById(R.id.logoContainer);
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (settings.disableToolbar)
+            mToolbar.setVisibility(INVISIBLE);
         mViewPager = (ViewPager) findViewById(R.id.viewPager);
 
         mViewPager.addOnPageChangeListener(this);
@@ -227,6 +230,13 @@ public class MaterialViewPager extends FrameLayout implements ViewPager.OnPageCh
 
     /**
      * Retrieve the displayed toolbar
+     */
+    public void setToolbar(Toolbar toolbar) {
+        mToolbar = toolbar;
+    }
+
+    /**
+     * Retrieve the displayed toolbar
      *
      * @return the displayed toolbar
      */
@@ -245,9 +255,21 @@ public class MaterialViewPager extends FrameLayout implements ViewPager.OnPageCh
             if (headerBackgroundImage != null) {
                 ViewHelper.setAlpha(headerBackgroundImage, settings.headerAlpha);
                 MaterialViewPagerImageHelper.setImageUrl(headerBackgroundImage, imageUrl, fadeDuration);
+                setImageHeaderDarkLayerAlpha();
             }
         }
     }
+
+    /**
+     * change the header displayed image with a fade and an OnLoadListener
+     * may remove Picasso
+     */
+    public void setImageUrl(String imageUrl, int fadeDuration, OnImageLoadListener imageLoadListener) {
+        if (imageLoadListener != null)
+            MaterialViewPagerImageHelper.setImageLoadListener(imageLoadListener);
+        setImageUrl(imageUrl, fadeDuration);
+    }
+
 
     /**
      * change the header displayed image with a fade
@@ -260,7 +282,20 @@ public class MaterialViewPager extends FrameLayout implements ViewPager.OnPageCh
             if (headerBackgroundImage != null) {
                 ViewHelper.setAlpha(headerBackgroundImage, settings.headerAlpha);
                 MaterialViewPagerImageHelper.setImageDrawable(headerBackgroundImage, drawable, fadeDuration);
+                setImageHeaderDarkLayerAlpha();
             }
+        }
+    }
+
+    /**
+     * Change alpha of the header image dark layer to reveal text.
+     */
+    public void setImageHeaderDarkLayerAlpha() {
+        final View headerImageDarkLayerView = findViewById(R.id.materialviewpager_headerImageDarkLayer);
+        //if using MaterialViewPagerImageHeader
+        if (headerImageDarkLayerView != null) {
+            headerImageDarkLayerView.setBackgroundColor(getResources().getColor(android.R.color.black));
+            ViewHelper.setAlpha(headerImageDarkLayerView, settings.imageHeaderDarkLayerAlpha);
         }
     }
 
@@ -268,7 +303,8 @@ public class MaterialViewPager extends FrameLayout implements ViewPager.OnPageCh
      * Change the header color
      */
     public void setColor(int color, int fadeDuration) {
-        MaterialViewPagerHelper.getAnimator(getContext()).setColor(color, fadeDuration * 2);
+        if (MaterialViewPagerHelper.getAnimator(getContext()) != null)
+            MaterialViewPagerHelper.getAnimator(getContext()).setColor(color, fadeDuration * 2);
     }
 
     @Override
@@ -305,7 +341,7 @@ public class MaterialViewPager extends FrameLayout implements ViewPager.OnPageCh
 
     //region ViewPagerOnPageListener
 
-    int lastPosition = 0;
+    int lastPosition = -1;
 
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -316,6 +352,12 @@ public class MaterialViewPager extends FrameLayout implements ViewPager.OnPageCh
         } else {
             onPageSelected(position);
         }
+    }
+
+    public void notifyHeaderChanged() {
+        int position = lastPosition;
+        lastPosition = -1;
+        onPageSelected(position);
     }
 
     @Override
@@ -394,4 +436,9 @@ public class MaterialViewPager extends FrameLayout implements ViewPager.OnPageCh
     public interface Listener {
         HeaderDesign getHeaderDesign(int page);
     }
+
+    public interface OnImageLoadListener {
+        void OnImageLoad(ImageView imageView, Bitmap bitmap);
+    }
+
 }

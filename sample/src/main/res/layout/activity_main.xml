@@ -14,7 +14,8 @@
         app:viewpager_logoMarginTop="100dp"
         app:viewpager_color="@color/colorPrimary"
         app:viewpager_headerHeight="200dp"
-        app:viewpager_headerAlpha="0.6"
+        app:viewpager_headerAlpha="1.0"
+        app:viewpager_imageHeaderDarkLayerAlpha="0.2"
         app:viewpager_hideLogoWithFade="false"
         app:viewpager_hideToolbarAndTitle="true"
         app:viewpager_enableToolbarElevation="true"
@@ -27,17 +28,5 @@
         />
 
     <include layout="@layout/drawer" />
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="11"
-            android:layout_centerHorizontal="true"/>
-
-    </RelativeLayout>
 
 </android.support.v4.widget.DrawerLayout>
