@@ -25,7 +25,7 @@ And have a look on a sample Youtube Video : [Youtube Link](http://www.youtube.co
 
 In your module [![Download](https://api.bintray.com/packages/florent37/maven/MaterialViewPager/images/download.svg)](https://bintray.com/florent37/maven/MaterialViewPager/_latestVersion)
 ```groovy
-compile ('com.github.florent37:materialviewpager:1.1.2@aar'){
+compile ('com.github.florent37:materialviewpager:1.1.3@aar'){
     transitive = true
 }
 ```
@@ -337,7 +337,7 @@ Create your own layout using a PagerSlidingTabStrip
     app:pstsIndicatorHeight="2dp"
     app:pstsShouldExpand="true"
     app:pstsTabPaddingLeftRight="10dp"
-    app:pstsTextAllCaps="true"
+    app:pstsTabTextAllCaps="true"
     tools:background="#A333"
      />
 ```
@@ -500,6 +500,10 @@ And must include @layout/material_view_pager_placeholder as first child
 ```
 
 #CHANGELOG
+
+##1.1.3
+- header is now clickable
+- fixed some scrolling issues
 
 ##1.1.2
 - quick scroll fix
